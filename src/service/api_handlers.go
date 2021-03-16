@@ -11,17 +11,19 @@ func (api StatService) saveStat(c *gin.Context) {
 	err := c.BindJSON(&stat)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = api.validator.ValidateStruct(stat)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	err = api.db.CreateStat(&stat)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	} else {
 		c.Status(http.StatusOK)
@@ -29,28 +31,21 @@ func (api StatService) saveStat(c *gin.Context) {
 }
 
 func (api StatService) getStat(c *gin.Context) {
-	fromDate := c.Query("from")
-	if fromDate == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Can't find from field in query parameters",
-		})
+	var filterData data.FilterData
+	err := c.BindQuery(&filterData)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	toDate := c.Query("to")
-	if toDate == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Can't find to field in query parameters",
-		})
+	err = api.validator.ValidateStruct(filterData)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	orderBy := c.Query("ordered_by")
-	if orderBy == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Can't find order_by field in query parameters",
-		})
-	}
-
-	stat := api.db.GetStat(fromDate, toDate, orderBy)
+	stat := api.db.GetStat(filterData.From, filterData.To, filterData.OrderBy)
 	c.JSON(http.StatusOK, stat)
 }
 

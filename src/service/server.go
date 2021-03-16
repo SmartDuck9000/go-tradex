@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/SmartDuck9000/go-tradex/src/config"
 	"github.com/SmartDuck9000/go-tradex/src/db"
+	"github.com/SmartDuck9000/go-tradex/src/validator"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,20 +12,22 @@ type StatServiceInterface interface {
 }
 
 type StatService struct {
-	server *gin.Engine
-	db     db.RepoDB
-	host   string
-	port   string
+	server    *gin.Engine
+	db        db.RepoDB
+	validator validator.ValidationInterface
+	host      string
+	port      string
 }
 
 func CreateServer(conf config.ServiceConfig) *StatService {
 	gin.SetMode(gin.ReleaseMode)
 
 	var api = StatService{
-		server: gin.Default(),
-		db:     db.CreateRepoPostgres(conf.DB),
-		host:   conf.Host,
-		port:   conf.Port,
+		server:    gin.Default(),
+		db:        db.CreateRepoPostgres(conf.DB),
+		validator: validator.NewPlaygroundValidator(),
+		host:      conf.Host,
+		port:      conf.Port,
 	}
 
 	api.server.POST("/api/stat/save", api.saveStat)

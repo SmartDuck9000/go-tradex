@@ -7,6 +7,12 @@ type SavedStat struct {
 	Cost   float64 `json:"cost" validate:"optional, gte=0"`
 }
 
+type FilterData struct {
+	From    string `json:"from" validate:"required, format=datetime"`
+	To      string `json:"to" validate:"required, format=datetime"`
+	OrderBy string `json:"order_by" validate:"required, format=datetime"`
+}
+
 type ResultStat struct {
 	Date   string
 	Views  uint64
