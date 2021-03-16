@@ -5,5 +5,5 @@ COPY . .
 RUN go get -d -v ./...
 RUN go install -v ./...
 
-ENTRYPOINT $GOPATH/bin/stat_service
+ENTRYPOINT $GOPATH/bin/src
 EXPOSE 5000

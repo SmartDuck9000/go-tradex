@@ -2,6 +2,7 @@ package db
 
 import (
 	"github.com/SmartDuck9000/go-tradex/src/config"
+	"github.com/SmartDuck9000/go-tradex/src/data"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"time"
@@ -11,8 +12,8 @@ type RepoDB interface {
 	Open() error
 	configureConnectionPools() error
 
-	CreateStat(stat *SavedStat) error
-	GetStat(fromDate string, toDate string, orderedBy string) *ResultStat
+	CreateStat(stat *data.SavedStat) error
+	GetStat(fromDate string, toDate string, orderedBy string) *data.ResultStat
 	DeleteStat()
 }
 
@@ -56,13 +57,13 @@ func (db RepoPostgres) configureConnectionPools() error {
 	return nil
 }
 
-func (db RepoPostgres) CreateStat(stat *SavedStat) error {
+func (db RepoPostgres) CreateStat(stat *data.SavedStat) error {
 	res := db.conn.Select("Date", "Views", "Clicks", "Cost").Create(stat)
 	return res.Error
 }
 
-func (db RepoPostgres) GetStat(fromDate string, toDate string, orderBy string) *ResultStat {
-	var stat ResultStat
+func (db RepoPostgres) GetStat(fromDate string, toDate string, orderBy string) *data.ResultStat {
+	var stat data.ResultStat
 
 	db.conn.
 		Table("users").

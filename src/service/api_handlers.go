@@ -1,13 +1,13 @@
 package service
 
 import (
-	"github.com/SmartDuck9000/go-tradex/src/db"
+	"github.com/SmartDuck9000/go-tradex/src/data"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 func (api StatService) saveStat(c *gin.Context) {
-	var stat db.SavedStat
+	var stat data.SavedStat
 	err := c.BindJSON(&stat)
 
 	if err != nil {
