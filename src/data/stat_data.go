@@ -1,16 +1,16 @@
 package data
 
 type SavedStat struct {
-	Date   string  `json:"date" validate:"required, format=datetime"`
-	Views  uint64  `json:"views" validate:"optional"`
-	Clicks uint64  `json:"clicks" validate:"optional"`
-	Cost   float64 `json:"cost" validate:"optional, gte=0"`
+	Date   string  `json:"date" validate:"required,datetime_fmt"`
+	Views  int64   `json:"views" validate:"omitempty,gte=0"`
+	Clicks int64   `json:"clicks" validate:"omitempty,gte=0"`
+	Cost   float64 `json:"cost" validate:"omitempty,gte=0"`
 }
 
 type FilterData struct {
-	From    string `json:"from" validate:"required, format=datetime"`
-	To      string `json:"to" validate:"required, format=datetime"`
-	OrderBy string `json:"order_by" validate:"required, format=datetime"`
+	From    string `json:"from" validate:"required,datetime_fmt"`
+	To      string `json:"to" validate:"required,datetime_fmt"`
+	OrderBy string `json:"order_by" validate:"required,date|views|clicks|cost|cpc|cpm"`
 }
 
 type ResultStat struct {
