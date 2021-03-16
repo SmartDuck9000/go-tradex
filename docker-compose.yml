@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+    postgres:
+        image: postgres:13-alpine
+        restart: unless-stopped
+        container_name: stat_db
+        environment:
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-avito_tradex}
+            - POSTGRES_USER=${POSTGRES_USER:-stat_dba}
+            - POSTGRES_DB=${POSTGRES_DB:-stat_db}
+        volumes:
+            - ./.docker/data/postgresql/:/Library/PostgreSQL/13/data/
+        ports:
+            - 5432
+
+    counter_stat_service:
+        build: ./src
+        restart: unless-stopped
+        container_name: stat_service
+        depends_on:
+            - postgres
+        ports:
+            - 5000:5000
