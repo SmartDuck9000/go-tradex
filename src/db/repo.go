@@ -13,7 +13,7 @@ type RepoDB interface {
 	configureConnectionPools() error
 
 	CreateStat(stat *data.SavedStat) error
-	GetStat(fromDate string, toDate string, orderedBy string) *data.ResultStat
+	GetStat(fromDate string, toDate string, orderedBy string) []data.ResultStat
 	DeleteStat()
 }
 
@@ -58,19 +58,19 @@ func (db RepoPostgres) configureConnectionPools() error {
 }
 
 func (db RepoPostgres) CreateStat(stat *data.SavedStat) error {
-	res := db.conn.Select("Date", "Views", "Clicks", "Cost").Create(stat)
+	res := db.conn.Table("statistics").Select("Date", "Views", "Clicks", "Cost").Create(stat)
 	return res.Error
 }
 
-func (db RepoPostgres) GetStat(fromDate string, toDate string, orderBy string) *data.ResultStat {
-	var stat data.ResultStat
+func (db RepoPostgres) GetStat(fromDate string, toDate string, orderBy string) []data.ResultStat {
+	var stats []data.ResultStat
 
-	db.conn.
-		Table("users").
-		Select("date, views, clicks, cost, cost / clicks AS cpc, cost / views * 1000 AS cpm").
-		Where("? <= date AND date <= ?", fromDate, toDate).Order(orderBy).Scan(&stat)
+	db.conn.Debug().
+		Table("statistics").
+		Select("to_char(date, 'YYYY-MM-DD') as date, views, clicks, cost::numeric, cost::numeric / clicks AS cpc, cost::numeric / views * 1000 AS cpm").
+		Where("? <= date AND date <= ?", fromDate, toDate).Order(orderBy).Scan(&stats)
 
-	return &stat
+	return stats
 }
 
 func (db RepoPostgres) DeleteStat() {

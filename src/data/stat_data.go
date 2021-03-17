@@ -8,16 +8,16 @@ type SavedStat struct {
 }
 
 type FilterData struct {
-	From    string `json:"from" validate:"required,datetime_fmt"`
-	To      string `json:"to" validate:"required,datetime_fmt"`
-	OrderBy string `json:"order_by" validate:"required,date|views|clicks|cost|cpc|cpm"`
+	From    string `form:"from" validate:"required,datetime_fmt"`
+	To      string `form:"to" validate:"required,datetime_fmt"`
+	OrderBy string `form:"order_by" validate:"required,oneof=date views clicks cost cpc cpm"`
 }
 
 type ResultStat struct {
-	Date   string
-	Views  uint64
-	Clicks uint64
-	Cost   float64
-	Cpc    float64
-	Cpm    float64
+	Date   string  `json:"date"`
+	Views  uint64  `json:"views"`
+	Clicks uint64  `json:"clicks"`
+	Cost   float64 `json:"cost"`
+	Cpc    float64 `json:"cpc"`
+	Cpm    float64 `json:"cpm"`
 }
