@@ -13,8 +13,8 @@ type RepoDB interface {
 	configureConnectionPools() error
 
 	CreateStat(stat *data.SavedStat) error
-	GetStat(fromDate string, toDate string, orderedBy string) []data.ResultStat
-	DeleteStat()
+	GetStat(fromDate string, toDate string, orderedBy string) ([]data.ResultStat, error)
+	DeleteStat() error
 }
 
 type RepoPostgres struct {
@@ -62,17 +62,20 @@ func (db RepoPostgres) CreateStat(stat *data.SavedStat) error {
 	return res.Error
 }
 
-func (db RepoPostgres) GetStat(fromDate string, toDate string, orderBy string) []data.ResultStat {
+func (db RepoPostgres) GetStat(fromDate string, toDate string, orderBy string) ([]data.ResultStat, error) {
 	var stats []data.ResultStat
 
-	db.conn.Debug().
+	res := db.conn.Debug().
 		Table("statistics").
-		Select("to_char(date, 'YYYY-MM-DD') as date, views, clicks, cost::numeric, cost::numeric / clicks AS cpc, cost::numeric / views * 1000 AS cpm").
+		Select("to_char(date, 'YYYY-MM-DD') as date, views, clicks, cost::numeric, "+
+			"cost::numeric / NULLIF(clicks, 0) AS cpc, "+
+			"cost::numeric / NULLIF(views, 0) * 1000 AS cpm").
 		Where("? <= date AND date <= ?", fromDate, toDate).Order(orderBy).Scan(&stats)
 
-	return stats
+	return stats, res.Error
 }
 
-func (db RepoPostgres) DeleteStat() {
-	db.conn.Exec("TRUNCATE statistics RESTART IDENTITY")
+func (db RepoPostgres) DeleteStat() error {
+	res := db.conn.Exec("TRUNCATE statistics RESTART IDENTITY")
+	return res.Error
 }

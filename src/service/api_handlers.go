@@ -45,11 +45,19 @@ func (api StatService) getStat(c *gin.Context) {
 		return
 	}
 
-	stat := api.db.GetStat(filterData.From, filterData.To, filterData.OrderBy)
-	c.JSON(http.StatusOK, stat)
+	stat, getErr := api.db.GetStat(filterData.From, filterData.To, filterData.OrderBy)
+	if getErr != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": getErr.Error()})
+	} else {
+		c.JSON(http.StatusOK, stat)
+	}
 }
 
 func (api StatService) deleteStat(c *gin.Context) {
-	api.db.DeleteStat()
-	c.Status(http.StatusOK)
+	err := api.db.DeleteStat()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	} else {
+		c.Status(http.StatusOK)
+	}
 }
